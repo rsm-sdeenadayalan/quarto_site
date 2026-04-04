@@ -1,0 +1,58 @@
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.18;';
+  document.body.prepend(canvas);
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const symbols = [
+    '∑','λ','μ','σ','β','α','π','θ','Δ','∫',
+    'γ','ρ','ε','∂','∇','χ','φ','ω',
+    'def','for','if','return','import','class',
+    'SELECT','JOIN','WHERE','NULL',
+    '{}','=>','::','[]','()','//','&&','||',
+    '0x1F','NaN','EOF','01','10','404'
+  ];
+
+  const drops = Array.from({length: 40}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    speed: 0.3 + Math.random() * 0.7,
+    symbol: symbols[Math.floor(Math.random() * symbols.length)],
+    size: 10 + Math.random() * 8,
+    opacity: 0.25 + Math.random() * 0.4,
+    changeTimer: Math.floor(Math.random() * 200)
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drops.forEach(drop => {
+      ctx.font = `${drop.size}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = `rgba(88, 166, 255, ${drop.opacity})`;
+      ctx.fillText(drop.symbol, drop.x, drop.y);
+      drop.y += drop.speed;
+      drop.changeTimer--;
+      if (drop.changeTimer <= 0) {
+        drop.symbol = symbols[Math.floor(Math.random() * symbols.length)];
+        drop.changeTimer = 100 + Math.floor(Math.random() * 200);
+        drop.opacity = 0.25 + Math.random() * 0.4;
+      }
+      if (drop.y > canvas.height) {
+        drop.y = -20;
+        drop.x = Math.random() * canvas.width;
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+});
+</script>

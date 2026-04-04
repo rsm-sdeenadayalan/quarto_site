@@ -1,0 +1,15 @@
+---
+title: "Shankar D"
+image: "files/IMG_3748.jpg"
+about:
+  template: trestles
+  links:
+    - icon: envelope
+      href: mailto:sdeenadayalan@ucsd.edu
+    - icon: linkedin
+      href: https://www.linkedin.com/in/shankar-d
+---
+
+This is a Quarto website for Marketing Analytics.
+
+To learn more about Quarto websites visit <https://quarto.org/docs/websites>.

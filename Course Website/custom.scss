@@ -1,0 +1,260 @@
+/*-- scss:defaults --*/
+$body-bg: #000000;
+$body-color: #e6edf3;
+$navbar-bg: #000000;
+$navbar-fg: #e6edf3;
+$sidebar-bg: #000000;
+$code-bg: #0d1117;
+$border-color: #21262d;
+$link-color: #58a6ff;
+$headings-color: #ffffff;
+$font-family-sans-serif: "JetBrains Mono", monospace;
+$headings-font-family: "Space Grotesk", sans-serif;
+$font-size-base: 0.95rem;
+$line-height-base: 1.8;
+
+/*-- scss:rules --*/
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+/* ── Scanline grain overlay ── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,0.015) 0px,
+    rgba(255,255,255,0.015) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── Animated gradient border top ── */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #58a6ff, #3fb950, #58a6ff, #79c0ff);
+  background-size: 300% 100%;
+  animation: gradientShift 4s linear infinite;
+  z-index: 10000;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* ── Navbar ── */
+.navbar {
+  border-bottom: 1px solid #21262d;
+  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.85) !important;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-brand {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #58a6ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-link {
+  color: #484f58 !important;
+  transition: color 0.3s ease, letter-spacing 0.3s ease !important;
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #58a6ff;
+    transition: width 0.3s ease;
+  }
+  &:hover {
+    color: #e6edf3 !important;
+    letter-spacing: 0.12em !important;
+    &::after { width: 100%; }
+  }
+}
+
+/* ── Page load fade-in ── */
+.page-layout-article,
+.page-layout-full,
+#quarto-content {
+  animation: fadeUp 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Headings ── */
+h1, h2, h3, h4 {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+h1 {
+  font-size: 2.4rem;
+  background: linear-gradient(135deg, #ffffff 40%, #58a6ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #21262d;
+  margin-bottom: 2rem;
+}
+
+h2 {
+  font-size: 1.4rem;
+  color: #8b949e;
+  font-weight: 400;
+  &::before {
+    content: "// ";
+    color: #3fb950;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9em;
+  }
+}
+
+/* ── Links ── */
+a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+  &:hover {
+    text-decoration: none;
+    color: #79c0ff;
+  }
+}
+
+/* ── About page ── */
+.about-links a {
+  border: 1px solid #21262d;
+  border-radius: 4px;
+  padding: 0.45rem 1rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: #8b949e;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  background: transparent;
+  &:hover {
+    border-color: #58a6ff;
+    color: #58a6ff;
+    background: rgba(88, 166, 255, 0.05);
+    box-shadow: 0 0 12px rgba(88, 166, 255, 0.15);
+    transform: translateY(-1px);
+  }
+}
+
+/* ── Project / listing cards ── */
+.card {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  transition: all 0.35s ease;
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(88,166,255,0.04), transparent);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  &:hover {
+    border-color: #58a6ff;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(88, 166, 255, 0.12);
+    &::before { opacity: 1; }
+  }
+}
+
+.card-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+/* ── Code blocks ── */
+pre {
+  border: 1px solid #21262d;
+  border-radius: 6px;
+  position: relative;
+  &::before {
+    content: "$ ";
+    color: #3fb950;
+    font-size: 0.8rem;
+  }
+}
+
+code {
+  color: #79c0ff;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.88em;
+}
+
+/* ── TOC ── */
+#TOC {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  border-left: 1px solid #21262d;
+  padding-left: 1rem;
+  color: #484f58;
+  a {
+    color: #484f58;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+    &:hover {
+      color: #58a6ff;
+      padding-left: 4px;
+    }
+  }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #000000; }
+::-webkit-scrollbar-thumb {
+  background: #21262d;
+  border-radius: 3px;
+  &:hover { background: #58a6ff; }
+}
+
+/* ── Text selection ── */
+::selection {
+  background: rgba(88, 166, 255, 0.25);
+  color: #ffffff;
+}

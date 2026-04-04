@@ -1,0 +1,26 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Shankar D"
+  navbar:
+    background: "#000000"
+    foreground: "#e6edf3"
+    left:
+      - href: index.qmd
+        text: About
+      - href: resume.qmd
+        text: Resume
+      - href: projects.qmd
+        text: Projects
+
+format:
+  html:
+    theme:
+      - darkly
+      - custom.scss
+    highlight-style: github-dark
+    css: styles.css
+    toc: true
+    include-in-header: scripts.html
