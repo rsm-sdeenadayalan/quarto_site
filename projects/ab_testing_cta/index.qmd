@@ -63,7 +63,7 @@ diffs = group_a - group_b
 running_mean = np.cumsum(diffs) / np.arange(1, n + 1)
 
 plt.figure(figsize=(10, 5))
-plt.plot(running_mean, color='#2c3e50', label='Sample Difference ($\hat{\theta}$)')
+plt.plot(running_mean, color='#2c3e50', label=r'Sample Difference ($\hat{\theta}$)')
 plt.axhline(y=0.04, color='#e74c3c', linestyle='--', label='True Difference ($\theta$)')
 plt.title("Law of Large Numbers: Convergence of the Estimator")
 plt.xlabel("Number of Observations")
@@ -142,8 +142,8 @@ df = pd.DataFrame({
 X = sm.add_constant(df['d'])
 res = sm.OLS(df['y'], X).fit()
 
-print(f"Regression Estimate (Beta_1): {res.params[1]:.4f}")
-print(f"P-Value: {res.pvalues[1]:.4f}")
+print(f"Regression Estimate (Beta_1): {res.params.iloc[1]:.4f}")
+print(f"P-Value: {res.pvalues.iloc[1]:.4f}")
 ```
 
 The regression framework makes it easy to add controls or additional treatment arms while producing the same inference in simple cases.

@@ -32,7 +32,7 @@
     "href": "projects.html",
     "title": "My Projects",
     "section": "",
-    "text": "Analysis of Cars\n\n\n\n\n\n\nYour Name\n\n\nApr 3, 2026\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Beyond the Hunch: The Science of the Click\n\n\n\n\n\n\nYour Name\n\n\nApr 14, 2026\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "projects/project2/index.html",
@@ -40,5 +40,68 @@
     "title": "Shankar D",
     "section": "",
     "text": "testing"
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html",
+    "href": "projects/ab_testing_cta/index.html",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "",
+    "text": "Imagine you’ve just launched a new landing page for your website. [cite_start]You have a prime spot for a newsletter sign-up, but you’re faced with a classic dilemma: which “Call to Action” (CTA) will actually get people to click? [cite: 2]\n[cite_start]To solve this, we use an A/B Test—the gold standard of digital experimentation. [cite: 6] [cite_start]In this setup, visitors are randomly assigned to see one of two versions. [cite: 7] [cite_start]One group sees CTA A: “Sign up for our newsletter here!”, while the other sees CTA B: “Stay up to date by signing up!” [cite: 4] [cite_start]By comparing the sign-up rates, we move past guesswork and let the data decide. [cite: 8]"
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html#introduction",
+    "href": "projects/ab_testing_cta/index.html#introduction",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "",
+    "text": "Imagine you’ve just launched a new landing page for your website. [cite_start]You have a prime spot for a newsletter sign-up, but you’re faced with a classic dilemma: which “Call to Action” (CTA) will actually get people to click? [cite: 2]\n[cite_start]To solve this, we use an A/B Test—the gold standard of digital experimentation. [cite: 6] [cite_start]In this setup, visitors are randomly assigned to see one of two versions. [cite: 7] [cite_start]One group sees CTA A: “Sign up for our newsletter here!”, while the other sees CTA B: “Stay up to date by signing up!” [cite: 4] [cite_start]By comparing the sign-up rates, we move past guesswork and let the data decide. [cite: 8]"
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html#the-ab-test-as-a-statistical-problem",
+    "href": "projects/ab_testing_cta/index.html#the-ab-test-as-a-statistical-problem",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "The A/B Test as a Statistical Problem",
+    "text": "The A/B Test as a Statistical Problem\nTo analyze this rigorously, we treat every visitor’s decision as a random event. [cite_start]Since a visitor either signs up (1) or doesn’t (0), we model their outcome using a Bernoulli distribution. [cite: 9, 11]\n[cite_start]We assume each group has its own underlying probability of success: [cite: 10] * \\(\\pi_A\\): The true sign-up probability for CTA A. * \\(\\pi_B\\): The true sign-up probability for CTA B.\n[cite_start]The core metric we care about is the treatment effect, \\(\\theta = \\pi_A - \\pi_B\\). [cite: 12] [cite_start]Since we cannot observe the true population parameters, we use the difference in sample means (\\(\\hat\\theta = \\bar{X}_A - \\bar{X}_B\\)) as our estimator. [cite: 13]"
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html#simulating-data",
+    "href": "projects/ab_testing_cta/index.html#simulating-data",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "Simulating Data",
+    "text": "Simulating Data\n[cite_start]In the real world, we never know the “true” values of \\(\\pi_A\\) and \\(\\pi_B\\). [cite: 15] [cite_start]However, for this simulation, we will set them ourselves to see if our statistics can actually “find” the truth. [cite: 15] [cite_start]Let’s assume CTA A is more effective with a 22% success rate, while CTA B has an 18% rate, giving us a true effect size of \\(\\theta = 0.04\\). [cite: 16]\n\n\nCode\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nfrom scipy import stats\nimport statsmodels.api as sm\n\n# Set seed for reproducibility\nnp.random.seed(42)\n\n# Parameters\npi_a, pi_b = 0.22, 0.18\nn = 1000\n\n# Simulate 1,000 Bernoulli draws for each group\ngroup_a = np.random.binomial(1, pi_a, n)\ngroup_b = np.random.binomial(1, pi_b, n)"
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html#the-law-of-large-numbers",
+    "href": "projects/ab_testing_cta/index.html#the-law-of-large-numbers",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "The Law of Large Numbers",
+    "text": "The Law of Large Numbers\nThe Law of Large Numbers (LLN) states that as a sample size grows, the sample mean converges to the population mean. For our A/B test, the LLN gives us confidence that \\(\\hat\\theta\\) will settle near the true 0.04 difference as we collect more data.\n\n\nView LLN Plotting Code\ndiffs = group_a - group_b\nrunning_mean = np.cumsum(diffs) / np.arange(1, n + 1)\n\nplt.figure(figsize=(10, 5))\nplt.plot(running_mean, color='#2c3e50', label=r'Sample Difference ($\\hat{\\theta}$)')\nplt.axhline(y=0.04, color='#e74c3c', linestyle='--', label='True Difference ($\\theta$)')\nplt.title(\"Law of Large Numbers: Convergence of the Estimator\")\nplt.xlabel(\"Number of Observations\")\nplt.ylabel(\"Difference in Means\")\nplt.legend()\nplt.show()\n\n\n\n\n\nThe noisy start of small samples settles into the true difference of 0.04.\n\n\n\n\nThe plot above demonstrates this visually: we see a noisy average when only a few observations are included, which then settles down and converges toward the true difference of 0.04 as the sample size grows."
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html#precision-bootstrapping-standard-errors",
+    "href": "projects/ab_testing_cta/index.html#precision-bootstrapping-standard-errors",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "Precision: Bootstrapping Standard Errors",
+    "text": "Precision: Bootstrapping Standard Errors\nHow precise is our estimate? Rather than relying solely on a formula, we use Bootstrapping—a resampling method that lets us estimate the variability of a statistic without a closed-form formula. We resample with replacement from our observed data many times and use the standard deviation of those resampled statistics as our estimate of the standard error.\n\n\nView Bootstrap Logic\nboot_diffs = []\nfor _ in range(1000):\n    res_a = np.random.choice(group_a, size=n, replace=True)\n    res_b = np.random.choice(group_b, size=n, replace=True)\n    boot_diffs.append(res_a.mean() - res_b.mean())\n\nboot_se = np.std(boot_diffs)\n\n# Analytical SE formula\np_a, p_b = group_a.mean(), group_b.mean()\nanalytical_se = np.sqrt((p_a*(1-p_a)/n) + (p_b*(1-p_b)/n))\n\n\nOur Bootstrapped SE is {python} round(boot_se, 4), while our Analytical SE is {python} round(analytical_se, 4). Because they are so close, we can confidently use the bootstrapped error to construct a 95% confidence interval for \\(\\theta\\)."
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html#the-central-limit-theorem-clt",
+    "href": "projects/ab_testing_cta/index.html#the-central-limit-theorem-clt",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "The Central Limit Theorem (CLT)",
+    "text": "The Central Limit Theorem (CLT)\nThe Central Limit Theorem (CLT) states that regardless of the shape of the underlying population distribution, the sampling distribution of the sample mean becomes approximately Normal as the sample size grows.\n\n\n\n\n\n\n\n\n\nObserve that at small sample sizes, the histogram may look rough, but as \\(n\\) increases, the distribution of \\(\\hat\\theta\\) becomes smoother and more bell-shaped."
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html#hypothesis-testing-regression",
+    "href": "projects/ab_testing_cta/index.html#hypothesis-testing-regression",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "Hypothesis Testing & Regression",
+    "text": "Hypothesis Testing & Regression\nUsing the CLT, we can perform a formal hypothesis test with a null hypothesis \\(H_0: \\theta = 0\\). We standardize \\(\\hat\\theta\\) to form a test statistic, which follows a standard Normal distribution \\(N(0,1)\\).\nThis test is mathematically equivalent to a Simple Linear Regression. If we regress the outcome \\(Y_i\\) (sign-up) on an indicator \\(D_i\\) (treatment group), the coefficient \\(\\beta_1\\) estimates our effect size \\(\\theta\\).\n\n\nCode\ndf = pd.DataFrame({\n    'y': np.concatenate([group_a, group_b]),\n    'd': np.concatenate([np.ones(n), np.zeros(n)])\n})\nX = sm.add_constant(df['d'])\nres = sm.OLS(df['y'], X).fit()\n\nprint(f\"Regression Estimate (Beta_1): {res.params.iloc[1]:.4f}\")\nprint(f\"P-Value: {res.pvalues.iloc[1]:.4f}\")\n\n\nRegression Estimate (Beta_1): 0.0380\nP-Value: 0.0327\n\n\nThe regression framework makes it easy to add controls or additional treatment arms while producing the same inference in simple cases."
+  },
+  {
+    "objectID": "projects/ab_testing_cta/index.html#the-problem-with-peeking",
+    "href": "projects/ab_testing_cta/index.html#the-problem-with-peeking",
+    "title": "Beyond the Hunch: The Science of the Click",
+    "section": "The Problem with Peeking",
+    "text": "The Problem with Peeking\nChecking results early (peeking) is problematic because it inflates the Type I error rate. While a single test has a 5% false positive rate, multiple peeks provide multiple opportunities to incorrectly reject the null hypothesis.\nIn a simulation of 10,000 experiments where \\(\\pi_A = \\pi_B = 0.20\\) (the null is true), peeking 10 times resulted in a false positive rate significantly higher than the nominal 5%.\nThe Lesson: Set your sample size in advance and avoid peeking to maintain the integrity of your A/B test."
   }
 ]
