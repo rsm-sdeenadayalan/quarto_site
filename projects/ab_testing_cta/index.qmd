@@ -1,0 +1,157 @@
+---
+title: "Beyond the Hunch: The Science of the Click"
+subtitle: "Using A/B Testing and Python to Optimize Digital CTAs"
+author: "Your Name"
+date: 2026-04-14
+categories: [A/B Testing, Python, Rady MSBA]
+format:
+  html:
+    code-fold: true
+    toc: true
+---
+
+## Introduction
+
+Imagine you’ve just launched a new landing page for your website. [cite_start]You have a prime spot for a newsletter sign-up, but you’re faced with a classic dilemma: which "Call to Action" (CTA) will actually get people to click? [cite: 2]
+
+[cite_start]To solve this, we use an **A/B Test**—the gold standard of digital experimentation. [cite: 6] [cite_start]In this setup, visitors are randomly assigned to see one of two versions. [cite: 7] [cite_start]One group sees **CTA A**: *"Sign up for our newsletter here!"*, while the other sees **CTA B**: *"Stay up to date by signing up!"* [cite: 4] [cite_start]By comparing the sign-up rates, we move past guesswork and let the data decide. [cite: 8]
+
+## The A/B Test as a Statistical Problem
+
+To analyze this rigorously, we treat every visitor’s decision as a random event. [cite_start]Since a visitor either signs up (1) or doesn't (0), we model their outcome using a **Bernoulli distribution**. [cite: 9, 11]
+
+[cite_start]We assume each group has its own underlying probability of success: [cite: 10]
+* **$\pi_A$**: The true sign-up probability for CTA A.
+* **$\pi_B$**: The true sign-up probability for CTA B.
+
+[cite_start]The core metric we care about is the treatment effect, $\theta = \pi_A - \pi_B$. [cite: 12] [cite_start]Since we cannot observe the true population parameters, we use the **difference in sample means** ($\hat\theta = \bar{X}_A - \bar{X}_B$) as our estimator. [cite: 13]
+
+## Simulating Data
+
+[cite_start]In the real world, we never know the "true" values of $\pi_A$ and $\pi_B$. [cite: 15] [cite_start]However, for this simulation, we will set them ourselves to see if our statistics can actually "find" the truth. [cite: 15] [cite_start]Let’s assume **CTA A** is more effective with a 22% success rate, while **CTA B** has an 18% rate, giving us a true effect size of $\theta = 0.04$. [cite: 16]
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+import statsmodels.api as sm
+
+# Set seed for reproducibility
+np.random.seed(42)
+
+# Parameters
+pi_a, pi_b = 0.22, 0.18
+n = 1000
+
+# Simulate 1,000 Bernoulli draws for each group
+group_a = np.random.binomial(1, pi_a, n)
+group_b = np.random.binomial(1, pi_b, n)
+```
+
+## The Law of Large Numbers
+
+The Law of Large Numbers (LLN) states that as a sample size grows, the sample mean converges to the population mean. For our A/B test, the LLN gives us confidence that $\hat\theta$ will settle near the true 0.04 difference as we collect more data.
+
+```{python}
+#| echo: true
+#| code-summary: "View LLN Plotting Code"
+#| fig-cap: "The noisy start of small samples settles into the true difference of 0.04."
+
+diffs = group_a - group_b
+running_mean = np.cumsum(diffs) / np.arange(1, n + 1)
+
+plt.figure(figsize=(10, 5))
+plt.plot(running_mean, color='#2c3e50', label='Sample Difference ($\hat{\theta}$)')
+plt.axhline(y=0.04, color='#e74c3c', linestyle='--', label='True Difference ($\theta$)')
+plt.title("Law of Large Numbers: Convergence of the Estimator")
+plt.xlabel("Number of Observations")
+plt.ylabel("Difference in Means")
+plt.legend()
+plt.show()
+```
+
+The plot above demonstrates this visually: we see a noisy average when only a few observations are included, which then settles down and converges toward the true difference of 0.04 as the sample size grows.
+
+## Precision: Bootstrapping Standard Errors
+
+How precise is our estimate? Rather than relying solely on a formula, we use Bootstrapping—a resampling method that lets us estimate the variability of a statistic without a closed-form formula. We resample with replacement from our observed data many times and use the standard deviation of those resampled statistics as our estimate of the standard error.
+
+```{python}
+#| echo: true
+#| code-summary: "View Bootstrap Logic"
+
+boot_diffs = []
+for _ in range(1000):
+    res_a = np.random.choice(group_a, size=n, replace=True)
+    res_b = np.random.choice(group_b, size=n, replace=True)
+    boot_diffs.append(res_a.mean() - res_b.mean())
+
+boot_se = np.std(boot_diffs)
+
+# Analytical SE formula
+p_a, p_b = group_a.mean(), group_b.mean()
+analytical_se = np.sqrt((p_a*(1-p_a)/n) + (p_b*(1-p_b)/n))
+```
+
+Our Bootstrapped SE is {python} round(boot_se, 4), while our Analytical SE is {python} round(analytical_se, 4). Because they are so close, we can confidently use the bootstrapped error to construct a 95% confidence interval for $\theta$.
+
+## The Central Limit Theorem (CLT)
+
+The Central Limit Theorem (CLT) states that regardless of the shape of the underlying population distribution, the sampling distribution of the sample mean becomes approximately Normal as the sample size grows.
+
+```{python}
+
+#| echo: false
+def get_sampling_dist(n_val):
+    means = []
+    for _ in range(1000):
+        a = np.random.binomial(1, pi_a, n_val)
+        b = np.random.binomial(1, pi_b, n_val)
+        means.append(a.mean() - b.mean())
+    return means
+
+samples = [25, 50, 100, 500]
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+axes = axes.flatten()
+
+for i, n_val in enumerate(samples):
+    dist = get_sampling_dist(n_val)
+    sns.histplot(dist, kde=True, ax=axes[i], color='#3498db')
+    axes[i].set_title(f"Sample Size n = {n_val}")
+
+plt.tight_layout()
+plt.show()
+```
+
+Observe that at small sample sizes, the histogram may look rough, but as $n$ increases, the distribution of $\hat\theta$ becomes smoother and more bell-shaped.
+
+## Hypothesis Testing & Regression
+
+Using the CLT, we can perform a formal hypothesis test with a null hypothesis $H_0: \theta = 0$. We standardize $\hat\theta$ to form a test statistic, which follows a standard Normal distribution $N(0,1)$.
+
+This test is mathematically equivalent to a Simple Linear Regression. If we regress the outcome $Y_i$ (sign-up) on an indicator $D_i$ (treatment group), the coefficient $\beta_1$ estimates our effect size $\theta$.
+
+```{python}
+#| echo: true
+df = pd.DataFrame({
+    'y': np.concatenate([group_a, group_b]),
+    'd': np.concatenate([np.ones(n), np.zeros(n)])
+})
+X = sm.add_constant(df['d'])
+res = sm.OLS(df['y'], X).fit()
+
+print(f"Regression Estimate (Beta_1): {res.params[1]:.4f}")
+print(f"P-Value: {res.pvalues[1]:.4f}")
+```
+
+The regression framework makes it easy to add controls or additional treatment arms while producing the same inference in simple cases.
+
+## The Problem with Peeking
+
+Checking results early (peeking) is problematic because it inflates the Type I error rate. While a single test has a 5% false positive rate, multiple peeks provide multiple opportunities to incorrectly reject the null hypothesis.
+
+In a simulation of 10,000 experiments where $\pi_A = \pi_B = 0.20$ (the null is true), peeking 10 times resulted in a false positive rate significantly higher than the nominal 5%.
+
+The Lesson: Set your sample size in advance and avoid peeking to maintain the integrity of your A/B test.
