@@ -307,7 +307,7 @@ window.Quarto = {
 <section id="simulating-data" class="level2">
 <h2 class="anchored" data-anchor-id="simulating-data">Simulating Data</h2>
 <p>[cite_start]In the real world, we never know the “true” values of <span class="math inline">\(\pi_A\)</span> and <span class="math inline">\(\pi_B\)</span>. [cite: 15] [cite_start]However, for this simulation, we will set them ourselves to see if our statistics can actually “find” the truth. [cite: 15] [cite_start]Let’s assume <strong>CTA A</strong> is more effective with a 22% success rate, while <strong>CTA B</strong> has an 18% rate, giving us a true effect size of <span class="math inline">\(\theta = 0.04\)</span>. [cite: 16]</p>
-<div id="a249232b" class="cell" data-execution_count="1">
+<div id="7b27a905" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -333,7 +333,7 @@ window.Quarto = {
 <section id="the-law-of-large-numbers" class="level2">
 <h2 class="anchored" data-anchor-id="the-law-of-large-numbers">The Law of Large Numbers</h2>
 <p>The Law of Large Numbers (LLN) states that as a sample size grows, the sample mean converges to the population mean. For our A/B test, the LLN gives us confidence that <span class="math inline">\(\hat\theta\)</span> will settle near the true 0.04 difference as we collect more data.</p>
-<div id="df8065e8" class="cell" data-execution_count="2">
+<div id="d500c4ce" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>View LLN Plotting Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>diffs <span class="op">=</span> group_a <span class="op">-</span> group_b</span>
@@ -362,7 +362,7 @@ window.Quarto = {
 <section id="precision-bootstrapping-standard-errors" class="level2">
 <h2 class="anchored" data-anchor-id="precision-bootstrapping-standard-errors">Precision: Bootstrapping Standard Errors</h2>
 <p>How precise is our estimate? Rather than relying solely on a formula, we use Bootstrapping—a resampling method that lets us estimate the variability of a statistic without a closed-form formula. We resample with replacement from our observed data many times and use the standard deviation of those resampled statistics as our estimate of the standard error.</p>
-<div id="d04c9c38" class="cell" data-execution_count="3">
+<div id="3381a445" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>View Bootstrap Logic</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>boot_diffs <span class="op">=</span> []</span>
@@ -383,7 +383,7 @@ window.Quarto = {
 <section id="the-central-limit-theorem-clt" class="level2">
 <h2 class="anchored" data-anchor-id="the-central-limit-theorem-clt">The Central Limit Theorem (CLT)</h2>
 <p>The Central Limit Theorem (CLT) states that regardless of the shape of the underlying population distribution, the sampling distribution of the sample mean becomes approximately Normal as the sample size grows.</p>
-<div id="e9b93192" class="cell" data-execution_count="4">
+<div id="29c18547" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -398,7 +398,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="hypothesis-testing-regression">Hypothesis Testing &amp; Regression</h2>
 <p>Using the CLT, we can perform a formal hypothesis test with a null hypothesis <span class="math inline">\(H_0: \theta = 0\)</span>. We standardize <span class="math inline">\(\hat\theta\)</span> to form a test statistic, which follows a standard Normal distribution <span class="math inline">\(N(0,1)\)</span>.</p>
 <p>This test is mathematically equivalent to a Simple Linear Regression. If we regress the outcome <span class="math inline">\(Y_i\)</span> (sign-up) on an indicator <span class="math inline">\(D_i\)</span> (treatment group), the coefficient <span class="math inline">\(\beta_1\)</span> estimates our effect size <span class="math inline">\(\theta\)</span>.</p>
-<div id="843c8550" class="cell" data-execution_count="5">
+<div id="adcf2bb2" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({</span>
