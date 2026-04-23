@@ -231,7 +231,7 @@ for y in ["avgverb", "avgmath"]:
 iv_table = pd.DataFrame(
     rows,
     columns=["Outcome", "2SLS: tipuach only", "2SLS: tipuach + c_size"],
-)
+).set_index("Outcome")
 iv_table
 ```
 
