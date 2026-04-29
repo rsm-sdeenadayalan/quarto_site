@@ -1,7 +1,7 @@
 ---
 title: "Beyond the Hunch: The Science of the Click"
 subtitle: "Using A/B Testing and Python to Optimize Digital CTAs"
-author: "Your Name"
+author: "Shankar Deenadayalan"
 date: 2026-04-14
 categories: [A/B Testing, Python, Rady MSBA]
 format:
@@ -12,23 +12,23 @@ format:
 
 ## Introduction
 
-Imagine you’ve just launched a new landing page for your website. [cite_start]You have a prime spot for a newsletter sign-up, but you’re faced with a classic dilemma: which "Call to Action" (CTA) will actually get people to click? [cite: 2]
+Imagine you've just launched a new landing page for your website. You have a prime spot for a newsletter sign-up, but you're faced with a classic dilemma: which "Call to Action" (CTA) will actually get people to click?
 
-[cite_start]To solve this, we use an **A/B Test**—the gold standard of digital experimentation. [cite: 6] [cite_start]In this setup, visitors are randomly assigned to see one of two versions. [cite: 7] [cite_start]One group sees **CTA A**: *"Sign up for our newsletter here!"*, while the other sees **CTA B**: *"Stay up to date by signing up!"* [cite: 4] [cite_start]By comparing the sign-up rates, we move past guesswork and let the data decide. [cite: 8]
+To solve this, we use an **A/B Test**—the gold standard of digital experimentation. In this setup, visitors are randomly assigned to see one of two versions. One group sees **CTA A**: *"Sign up for our newsletter here!"*, while the other sees **CTA B**: *"Stay up to date by signing up!"* By comparing the sign-up rates, we move past guesswork and let the data decide.
 
 ## The A/B Test as a Statistical Problem
 
-To analyze this rigorously, we treat every visitor’s decision as a random event. [cite_start]Since a visitor either signs up (1) or doesn't (0), we model their outcome using a **Bernoulli distribution**. [cite: 9, 11]
+To analyze this rigorously, we treat every visitor's decision as a random event. Since a visitor either signs up (1) or doesn't (0), we model their outcome using a **Bernoulli distribution**.
 
-[cite_start]We assume each group has its own underlying probability of success: [cite: 10]
+We assume each group has its own underlying probability of success:
 * **$\pi_A$**: The true sign-up probability for CTA A.
 * **$\pi_B$**: The true sign-up probability for CTA B.
 
-[cite_start]The core metric we care about is the treatment effect, $\theta = \pi_A - \pi_B$. [cite: 12] [cite_start]Since we cannot observe the true population parameters, we use the **difference in sample means** ($\hat\theta = \bar{X}_A - \bar{X}_B$) as our estimator. [cite: 13]
+The core metric we care about is the treatment effect, $\theta = \pi_A - \pi_B$. Since we cannot observe the true population parameters, we use the **difference in sample means** ($\hat\theta = \bar{X}_A - \bar{X}_B$) as our estimator.
 
 ## Simulating Data
 
-[cite_start]In the real world, we never know the "true" values of $\pi_A$ and $\pi_B$. [cite: 15] [cite_start]However, for this simulation, we will set them ourselves to see if our statistics can actually "find" the truth. [cite: 15] [cite_start]Let’s assume **CTA A** is more effective with a 22% success rate, while **CTA B** has an 18% rate, giving us a true effect size of $\theta = 0.04$. [cite: 16]
+In the real world, we never know the "true" values of $\pi_A$ and $\pi_B$. However, for this simulation, we will set them ourselves to see if our statistics can actually "find" the truth. Let's assume **CTA A** is more effective with a 22% success rate, while **CTA B** has an 18% rate, giving us a true effect size of $\theta = 0.04$.
 
 ```{python}
 import numpy as np
@@ -95,14 +95,38 @@ p_a, p_b = group_a.mean(), group_b.mean()
 analytical_se = np.sqrt((p_a*(1-p_a)/n) + (p_b*(1-p_b)/n))
 ```
 
-Our Bootstrapped SE is {python} round(boot_se, 4), while our Analytical SE is {python} round(analytical_se, 4). Because they are so close, we can confidently use the bootstrapped error to construct a 95% confidence interval for $\theta$.
+Our Bootstrapped SE is `{python} round(boot_se, 4)`, while our Analytical SE is `{python} round(analytical_se, 4)`. Because they are so close, we can confidently use the bootstrapped error to construct a 95% confidence interval for $\theta$.
+
+```{python}
+#| echo: true
+#| code-summary: "View 95% CI Plot"
+#| fig-cap: "95% bootstrap confidence interval for the treatment effect θ. The interval excludes zero, confirming statistical significance."
+
+theta_hat = p_a - p_b
+ci_lower = theta_hat - 1.96 * boot_se
+ci_upper = theta_hat + 1.96 * boot_se
+
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.hist(boot_diffs, bins=40, color='#3498db', edgecolor='white', alpha=0.8, label='Bootstrap distribution')
+ax.axvline(theta_hat, color='#2c3e50', linewidth=2, label=f'Estimate = {theta_hat:.4f}')
+ax.axvline(ci_lower, color='#e74c3c', linestyle='--', linewidth=1.5, label=f'95% CI [{ci_lower:.4f}, {ci_upper:.4f}]')
+ax.axvline(ci_upper, color='#e74c3c', linestyle='--', linewidth=1.5)
+ax.axvline(0, color='gray', linestyle=':', linewidth=1, label='Null (θ = 0)')
+ax.set_title("Bootstrap Distribution with 95% Confidence Interval")
+ax.set_xlabel("Estimated Difference in Sign-up Rates")
+ax.set_ylabel("Frequency")
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+The confidence interval `[{python} round(ci_lower, 4)`, `{python} round(ci_upper, 4)]` does **not** contain zero, which means we can reject the null hypothesis at the 5% significance level.
 
 ## The Central Limit Theorem (CLT)
 
 The Central Limit Theorem (CLT) states that regardless of the shape of the underlying population distribution, the sampling distribution of the sample mean becomes approximately Normal as the sample size grows.
 
 ```{python}
-
 #| echo: false
 def get_sampling_dist(n_val):
     means = []
@@ -152,6 +176,73 @@ The regression framework makes it easy to add controls or additional treatment a
 
 Checking results early (peeking) is problematic because it inflates the Type I error rate. While a single test has a 5% false positive rate, multiple peeks provide multiple opportunities to incorrectly reject the null hypothesis.
 
-In a simulation of 10,000 experiments where $\pi_A = \pi_B = 0.20$ (the null is true), peeking 10 times resulted in a false positive rate significantly higher than the nominal 5%.
+The simulation below runs 10,000 experiments under the null ($\pi_A = \pi_B = 0.20$) and measures how often we falsely reject $H_0$ when we peek 10 times versus testing only once at the end.
 
-The Lesson: Set your sample size in advance and avoid peeking to maintain the integrity of your A/B test.
+```{python}
+#| echo: true
+#| code-summary: "View Peeking Simulation"
+#| fig-cap: "Peeking inflates the false positive rate far above the nominal 5% threshold."
+
+np.random.seed(0)
+n_experiments = 10_000
+peek_points = np.linspace(100, 1000, 10, dtype=int)
+alpha = 0.05
+
+false_pos_peek = 0
+false_pos_fixed = 0
+
+for _ in range(n_experiments):
+    a = np.random.binomial(1, 0.20, 1000)
+    b = np.random.binomial(1, 0.20, 1000)
+
+    # Peeking: test at each of 10 intermediate points
+    rejected_early = False
+    for k in peek_points:
+        _, p = stats.ttest_ind(a[:k], b[:k])
+        if p < alpha:
+            rejected_early = True
+            break
+    if rejected_early:
+        false_pos_peek += 1
+
+    # Fixed-horizon: test only at the end
+    _, p_final = stats.ttest_ind(a, b)
+    if p_final < alpha:
+        false_pos_fixed += 1
+
+fpr_peek = false_pos_peek / n_experiments
+fpr_fixed = false_pos_fixed / n_experiments
+
+fig, ax = plt.subplots(figsize=(7, 4))
+bars = ax.bar(['Fixed-horizon\n(test once)', 'Peeking\n(test 10 times)'],
+              [fpr_fixed, fpr_peek],
+              color=['#27ae60', '#e74c3c'], width=0.4)
+ax.axhline(alpha, color='black', linestyle='--', linewidth=1.2, label=f'Nominal α = {alpha}')
+for bar, val in zip(bars, [fpr_fixed, fpr_peek]):
+    ax.text(bar.get_x() + bar.get_width() / 2, val + 0.005,
+            f'{val:.1%}', ha='center', fontsize=11, fontweight='bold')
+ax.set_ylabel("False Positive Rate")
+ax.set_title("The Cost of Peeking: Inflated Type I Error")
+ax.set_ylim(0, 0.35)
+ax.legend()
+plt.tight_layout()
+plt.show()
+
+print(f"Fixed-horizon false positive rate: {fpr_fixed:.1%}")
+print(f"Peeking false positive rate:       {fpr_peek:.1%}")
+```
+
+**The Lesson:** Set your sample size in advance and avoid peeking to maintain the integrity of your A/B test. As shown above, peeking just 10 times can more than triple the nominal false positive rate.
+
+## Conclusion
+
+In this post, we walked through the full lifecycle of an A/B test for optimizing a newsletter sign-up CTA:
+
+1. **Framed** the problem statistically using Bernoulli outcomes and a treatment effect $\theta$.
+2. **Simulated** data where we knew the ground truth ($\theta = 0.04$).
+3. **Verified** convergence via the Law of Large Numbers.
+4. **Quantified uncertainty** through bootstrapping and visualized a 95% confidence interval.
+5. **Confirmed significance** using the CLT, a z-test, and its OLS equivalent.
+6. **Demonstrated** how peeking corrupts inference and why a pre-committed sample size matters.
+
+The next time you face a "which button works better?" question, reach for a properly designed A/B test—and resist the urge to peek.
