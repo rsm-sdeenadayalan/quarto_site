@@ -148,6 +148,59 @@ print(f"P-Value: {res.pvalues.iloc[1]:.4f}")
 
 The regression framework makes it easy to add controls or additional treatment arms while producing the same inference in simple cases.
 
+To make the test outcome more concrete, the figure below shows the standard normal sampling distribution of the z-statistic under $H_0$. The shaded red regions are the rejection zones at the 5% significance level (anything beyond $|z| > 1.96$). The orange tails together represent the two-sided p-value, the probability of seeing a result this extreme or more if the null were true.
+
+```{python}
+#| echo: false
+#| fig-cap: "Visualizing the hypothesis test: where our observed z-statistic falls under the null distribution."
+
+z_stat = res.tvalues.iloc[1]
+p_val = res.pvalues.iloc[1]
+
+fig, ax = plt.subplots(figsize=(10, 5))
+
+x = np.linspace(-4, 4, 500)
+y = stats.norm.pdf(x)
+
+# Base curve
+ax.plot(x, y, color='#2c3e50', linewidth=2, label='$N(0, 1)$ under $H_0$')
+
+# Rejection regions at alpha = 0.05 (|z| > 1.96)
+z_crit = 1.96
+x_left  = x[x <= -z_crit]
+x_right = x[x >=  z_crit]
+ax.fill_between(x_left,  stats.norm.pdf(x_left),  color='#e74c3c', alpha=0.25,
+                label=r'Rejection region ($\alpha = 0.05$)')
+ax.fill_between(x_right, stats.norm.pdf(x_right), color='#e74c3c', alpha=0.25)
+
+# P-value tails for observed z
+x_p_right = x[x >=  abs(z_stat)]
+x_p_left  = x[x <= -abs(z_stat)]
+ax.fill_between(x_p_right, stats.norm.pdf(x_p_right), color='orange', alpha=0.6,
+                label=f'p-value tails (p = {p_val:.3f})')
+ax.fill_between(x_p_left,  stats.norm.pdf(x_p_left),  color='orange', alpha=0.6)
+
+# Observed z marker
+ax.axvline(z_stat, color='#27ae60', linestyle='--', linewidth=2,
+           label=f'Observed $z$ = {z_stat:.2f}')
+
+# Critical value markers
+ax.axvline( z_crit, color='#e74c3c', linestyle=':', linewidth=1.2, alpha=0.7)
+ax.axvline(-z_crit, color='#e74c3c', linestyle=':', linewidth=1.2, alpha=0.7)
+
+ax.set_xlabel('z-statistic', fontsize=12)
+ax.set_ylabel('Density', fontsize=12)
+ax.set_title('Hypothesis Test: Observed z-Statistic vs. Null Distribution', fontsize=13)
+ax.legend(fontsize=10, loc='upper left')
+ax.grid(True, alpha=0.3)
+ax.set_xlim(-4, 4)
+ax.set_ylim(0, 0.45)
+plt.tight_layout()
+plt.show()
+```
+
+If the observed z falls inside the red zone, we reject $H_0$ at the 5% level. The orange p-value tails give a continuous read on how surprising the result is, beyond a binary reject/don't-reject call.
+
 ## The Problem with Peeking
 
 Checking results early (peeking) is problematic because it inflates the Type I error rate. While a single test has a 5% false positive rate, multiple peeks provide multiple opportunities to incorrectly reject the null hypothesis.
